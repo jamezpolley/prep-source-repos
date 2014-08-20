@@ -40,6 +40,9 @@ def normalise_conf(conf):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--clean", help="If set, reset each repo to upstream "
+                        "state with no patches applied (ignoring refs in "
+                        "config file)", action='store_true')
     parser.add_argument("refs", help="the yaml config file")
     parser.add_argument("output", help="where to put the downloaded repositories")
     parser.add_argument("repos", help="what repos to update", nargs="*")
@@ -65,7 +68,10 @@ def main():
         if not os.path.isdir(os.path.join(rd)):
             check_call(['git', 'clone', remote, rd])
 
-        refs = CONF['gerrit_refs'].get(repo, ())
+        if args.clean:
+            refs = []
+        else:
+            refs = CONF['gerrit_refs'].get(repo, ())
 
         git_refs = ['+master:review/master']
         for ref in refs:
