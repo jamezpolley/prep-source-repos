@@ -1,3 +1,9 @@
+prep_source_repos
+-----------------
+
+Introduction
+============
+
 This repository contains scripts for managing multiple outstanding patches
 to a gerrit based project. It was initially developed for managing TripleO
 deployments, and still makes certain TripleOish assumptions (patches welcome
@@ -5,13 +11,14 @@ if you find the tool more generally useful)
 
 The source repo includes:
 
- - tooling to combine arbitrary unmerged gerrit patches (prep_source_repos)
-   which will also export an rc file with git refs based on the combined
-   branches
- - a sample config file that we're using for our TripleO deployments
-   (repo_refs.yaml)
+- tooling to combine arbitrary unmerged gerrit patches (prep_source_repos)
+  which will also export an rc file with git refs based on the combined
+  branches
+- a sample config file that we're using for our TripleO deployments
+  (repo_refs.yaml)
 
-## Usage
+Usage
+=====
 
 * create a repo_refs.yaml (see the one in the root of this repository
   for inspiration).
@@ -32,7 +39,8 @@ The source repo includes:
 * proceed with any tripleo activies you might have (building images, deploying,
   etc etc).
 
-## Advanced use
+Advanced use
+============
 
 Refs that don't match the xx/yy/zz form of gerrit refs are presumed to be
 local work-in-progress branches. These are not fetched, but are merged into
