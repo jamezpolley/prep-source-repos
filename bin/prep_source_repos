@@ -128,7 +128,7 @@ def main():
         if dirty:
             check_call(['git', 'stash'], cwd=rd)
         branches = check_output(['git', 'branch', '-a'], cwd=rd)
-        if ' ' + branch_name in branches:
+        if ' ' + branch_name + "\n" in branches:
             print 'Resetting existing branch %s...' % branch_name
             check_call(['git', 'checkout', branch_name], cwd=rd)
             check_call(['git', 'reset', '--hard', 'review/master'], cwd=rd)
