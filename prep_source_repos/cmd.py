@@ -62,10 +62,10 @@ def main():
     for repo, (remote, gerrit) in CONF['repos'].items():
         if args.repos and repo not in args.repos:
             continue
-        rd = os.path.join(SRC_ROOT, repo)
+        repo_root_dir = os.path.join(SRC_ROOT, repo)
 
-        if not os.path.isdir(os.path.join(rd)):
-            check_call(['git', 'clone', remote, rd])
+        if not os.path.isdir(os.path.join(repo_root_dir)):
+            check_call(['git', 'clone', remote, repo_root_dir])
 
         refs = CONF['gerrit_refs'].get(repo, ())
 
@@ -90,7 +90,7 @@ def main():
             git_refs.append(
                 '+%(rref)s:%(rref)s' % dict(rref=rref))
         print('fetching from %s %s' % (remote, git_refs))
-        check_call(['git', 'fetch', remote] + git_refs, cwd=rd)
+        check_call(['git', 'fetch', remote] + git_refs, cwd=repo_root_dir)
 
         if not refs:
             branch_name = 'master'
@@ -103,17 +103,17 @@ def main():
                 else:
                     components.append(ref)
             branch_name = 'rollup_' + '_'.join(components)
-        dirty = check_output(['git', 'status', '-z', '-uno'], cwd=rd)
+        dirty = check_output(['git', 'status', '-z', '-uno'], cwd=repo_root_dir)
         if dirty:
-            check_call(['git', 'stash'], cwd=rd)
-        branches = check_output(['git', 'branch', '-a'], cwd=rd)
+            check_call(['git', 'stash'], cwd=repo_root_dir)
+        branches = check_output(['git', 'branch', '-a'], cwd=repo_root_dir)
         if ' ' + branch_name in branches:
             print('Resetting existing branch %s...' % branch_name)
-            check_call(['git', 'checkout', branch_name], cwd=rd)
-            check_call(['git', 'reset', '--hard', 'review/master'], cwd=rd)
+            check_call(['git', 'checkout', branch_name], cwd=repo_root_dir)
+            check_call(['git', 'reset', '--hard', 'review/master'], cwd=repo_root_dir)
         else:
             check_call(['git', 'checkout', '-b', branch_name,
-                        'review/master'], cwd=rd)
+                        'review/master'], cwd=repo_root_dir)
         for ref in refs:
             segments = ref.split('/')
             if len(segments) == 3:
@@ -122,15 +122,15 @@ def main():
                 else:
                     ref = 'refs/changes/%s' % ref
             print('merging in %s' % ref)
-            check_call(['git', 'merge', '--no-edit', ref], cwd=rd)
+            check_call(['git', 'merge', '--no-edit', ref], cwd=repo_root_dir)
         if dirty:
-            check_call(['git', 'stash', 'pop'], cwd=rd)
+            check_call(['git', 'stash', 'pop'], cwd=repo_root_dir)
         normalised_repo = re.sub('[^A-Za-z0-9_]', '_', repo)
         if repo not in CONF['gerrit_refs']:
             print('no refs for %s' % repo)
-            variables.append((normalised_repo, rd, None))
+            variables.append((normalised_repo, repo_root_dir, None))
         else:
-            variables.append((normalised_repo, rd, branch_name))
+            variables.append((normalised_repo, repo_root_dir, branch_name))
 
     with open(args.refs + '.variables', 'wt') as output:
         for name, location, ref in variables:
